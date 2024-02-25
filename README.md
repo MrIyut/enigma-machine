@@ -1,84 +1,78 @@
-# ENIGMA MACHINE
+# ENIGMA MACHINE IN NASM x32
 
-Enigma machine este o masina de criptare complexa folosita de germani
-in al 2-lea razboi mondial pentru a encoda mesaje. Aceasta este alca-
-tuita din mai multe componente: \
-`1. Plugboard : o placa fizica care face swap intre anumite litere.`
+The Enigma machine is a complex encryption machine used by the Germans
+in the 2nd world war to encode messages. This is alca-
+tuita from several components: \
+`1. Plugboard: a physical board that swaps between certain letters.`
 
-`2. Reflector : o placa fizica care face swap intre litere 2 cate 2.` \
-De exemplu, daca A este legat la D, atunci D -> (reflector) -> A si
+`2. Reflector: a physical card that swaps letters 2 by 2.` \
+For example, if A is linked to D, then D -> (reflector) -> A and
 A -> (reflector) -> D.
 
-`3. Rotor : o roata mecanica ce contine o permutare a celor 26 de litere
-ale alfabetului, si un notch care are ca rol rotirea rotii din stanga.` \
-Exemplu : Pentru Rotor1 avem \
+`3. Rotor: a mechanical wheel that contains a permutation of the 26 letters
+of the alphabet, and a notch whose role is to rotate the wheel from the left.` \
+Example : For Rotor1 we have \
 A B C D E F G H I J K L M N O P Q R S T U V W X Y Z \
 E K M F L G D Q V Z N T O W Y H X U S P A I B R C J, \
 cu notch pe Q.
 
-Vrem sa construim logica din spatele masinii enigma pentru a putea encripta
-si decripta mesaje.
-Configuratia masinii este stocata intr-o matrice config[10][26] astfel :
-- liniile 0 - 1 reprezinta configuratia primului rotor.
-- liniile 2 - 3 reprezinta configuratia celui de-al doilea rotor.
-- liniile 4 - 5 reprezinta configuratia celui de-al treilea rotor.
-- liniile 6 - 7 reprezinta configuratia reflector-ului.
-- liniile 8 - 9 reprezinta configuratia plugboard-ului.
+We want to build the logic behind the enigma machine to be able to encrypt
+and decrypt messages.
+The machine configuration is stored in a config[10][26] matrix as follows:
+- lines 0 - 1 represent the configuration of the first rotor.
+- lines 2 - 3 represent the configuration of the second rotor.
+- lines 4 - 5 represent the configuration of the third rotor.
+- lines 6 - 7 represent the configuration of the reflector.
+- lines 8 - 9 represent the configuration of the plugboard.
 
-## a) Punerea rotorilor in pozitia initiala (5p):
-
-Pentru rezolvarea acestui task aveti de implementat urmatoarea functie: \
+## a) Punerea rotorilor in pozitia initiala :
+\
 `void rotate_x_positions(int x, int rotor, char config[10][26], int forward)`
 
-unde:
+where:
 
-`x - offset-ul noii pozitii`
+`x - the offset of the new position'
 
-`rotor - rotorul pe care se aplica rotatia (indexarea se face de la 0 !)`
+`rotor - the rotor on which the rotation is applied (indexing is done from 0!)'
 
-`config - configuratia masinii pe care va trebui sa o modificati`
+`config - the configuration of the machine that you will have to modify'
 
-`forward - directia de rotatie` (daca forward = 0 atunci se shifteaza la stanga
-x pozitii, daca forward = 1 atunci se shifteaza la dreapta x pozitii).
+`forward - direction of rotation' (if forward = 0 then it shifts to the left
+x positions, if forward = 1 then it shifts to the right x positions).
 
-Se va modifica matricea config conform parametrului rotor.
+The config matrix will be modified according to the rotor parameter.
 
-Exemplu: \
-Daca primele 2 linii din matricea config contin configuratia primului rotor, de exemplu \
+Example: \
+If the first 2 lines of the config matrix contain the configuration of the first rotor, for example \
 A B C D E F G H I J K L M N O P Q R S T U V W X Y Z \
 E K M F L G D Q V Z N T O W Y H X U S P A I B R C J \
-si aplicam functia astfel: \
-rotate_x_positions(3, 0, config, 0), atunci se modifica aceste 2 linii in \
+and we apply the function like this: \
+rotate_x_positions(3, 0, config, 0), then change these 2 lines in \
 D E F G H I J K L M N O P Q R S T U V W X Y Z A B C \
 F L G D Q V Z N T O W Y H X U S P A I B R C J E K M 
 
-## b) Codificarea mesajului (20p):
-Pentru rezolvarea acestui task aveti de implementat urmatoarea functie: \
+## b) Encoding the message:
+\
 `void enigma(char *plain, char key[3], char notches[3], char config[10][26], char *enc)`
 
-unde:
+where:
 
-`plain - textul de criptat`
+`plain - the text to be encrypted`
 
-`key - pozitiile initiale ale rotorilor (key[i] = pozitia initiala a rotorului i)`
+`key - the initial positions of the rotors (key[i] = the initial position of the rotor i)`
 
-`notches - notch-urile initiale ale rotorilor (notches[i] = notch-ul initial a rotorului i)`
+`notches - the initial notches of the rotors (notches[i] = the initial notch of the rotor i)`
 
-`config - configuratia masinii`
+`config - machine configuration'
 
-`enc - adresa la care va trebui sa scrieti textul criptat`
+`enc - the address to which you will have to write the encrypted text'
 
-Atentie : inainte de citirea caracterului din plain, trebuie rotit al 3-lea rotor
-cu 1 pozitie (shiftare la stanga) si incrementata pozitia initiala a acestuia (alfabetul
-este circular deci daca incrementam Z acesta devine A). Daca pozitia curenta 
-INAINTE DE ROTIRE a rotorului este egala cu notch-ul acestuia, atunci vom roti si
-rotorul din stanga acestuia cu 1 pozitie (acest lucru se va realiza pentru toti
-rotorii mai putin primul);
+Attention: before reading the character from the plain, the 3rd rotor must be turned
+with 1 position (left shift) and its initial position increased (alphabet
+is circular, so if we increase Z it becomes A). If the current position
+BEFORE ROTATING the rotor is equal to its notch, then we will also rotate
+the rotor on its left with 1 position (this will be done for everyone
+rotors less the first);
 
-Exemplu 1 : key = "QWE", notches = "AAE" => key = "QXF"
-
-Exemplu 2 : key = "QWE", notches = "AWE" => key = "RXF"
-
-## Exemplu de encriptare al unui caracter:
-
-![example](images/enigma_example1.png)
+Example 1 : key = "QWE", notches = "AAE" => key = "QXF"
+Example 2: key = "QWE", notches = "AWE" => key = "RXF"
